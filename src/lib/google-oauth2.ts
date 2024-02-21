@@ -1,11 +1,13 @@
+type TokenGrantError = { error: { code: number, message: string, status: string } };
 type TokenGrantResponse = {
   access_token: string,
   expires_in: number,
   id_token: string,
   refresh_token: string,
   scope: string,
-  token_type: 'Bearer'
-}
+  token_type: 'Bearer',
+  error: undefined
+};
 
 export async function getTokens (oauthCode: string) {
   const url = 'https://oauth2.googleapis.com/token'
@@ -17,7 +19,7 @@ export async function getTokens (oauthCode: string) {
     redirect_uri: process.env.OAUTH_REDIRECT_URL
   }
 
-  const response: TokenGrantResponse = await fetch(url, { method: 'POST', body: JSON.stringify(data) })
+  const response: TokenGrantResponse | TokenGrantError = await fetch(url, { method: 'POST', body: JSON.stringify(data) })
     .then(x => x.json()).catch(e => console.log(e.response.data.error))
   return response
 }
@@ -57,7 +59,7 @@ export async function getAccessToken (refreshToken: string) {
   // return token
 }
 
-type UserInfoResponse = {
+export type UserInfoResponse = {
   family_name: string, 
   name: string, 
   picture: string,
@@ -69,7 +71,7 @@ type UserInfoResponse = {
   verified_email: boolean
 }
 
-export async function getUserInfo (accessToken: string) {
+export async function getUserInfo (accessToken: string): Promise<UserInfoResponse> {
   const url = 'https://www.googleapis.com/oauth2/v2/userinfo'
   const headers = { Authorization: 'Bearer ' + accessToken }
   const response = await fetch(url, { headers }).then(x => x.json())
