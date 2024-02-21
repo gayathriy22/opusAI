@@ -7,9 +7,11 @@ exports.up = async function (knex) {
   await knex.schema.raw(`
     CREATE TABLE task (
       task_id SERIAL PRIMARY KEY NOT NULL,
+      user_id TEXT NOT NULL,
       name TEXT NOT NULL,
       description TEXT NULL,
-      priority INTEGER NOT NULL DEFAULT 1
+      priority INTEGER NOT NULL DEFAULT 1,
+      FOREIGN KEY (user_id) REFERENCES users(uid)
     );
   `)
 };
