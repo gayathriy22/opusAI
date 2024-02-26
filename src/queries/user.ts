@@ -1,13 +1,24 @@
 import { pool } from '../lib/database'
 import { UserInfoResponse } from "@/lib/google-oauth2"
 
-export async function getAndCreateUser (user: UserInfoResponse) {
-  const existingUserQuery = 'SELECT uid FROM users WHERE uid = $1';
+export interface User {
+  uid: string;
+  name: string;
+  picture: string;
+}
+
+export async function getUser (user: UserInfoResponse) {
+  const existingUserQuery = 'SELECT * FROM users WHERE uid = $1';
   const result = await pool.query(existingUserQuery, [user.id]);
   if (result.rowCount) return result.rows[0];
+}
 
-  const newUser = await createUserIfNeeded(user, false)
-  return newUser
+export async function getAndCreateUser (user: UserInfoResponse) {
+  const existingUser = await getUser(user);
+  if (existingUser) return existingUser;
+
+  const newUser = await createUserIfNeeded(user, false);
+  return newUser;
 }
 
 export async function createUserIfNeeded (user: UserInfoResponse, addFirstSeen: boolean) {

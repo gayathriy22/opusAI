@@ -9,8 +9,12 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ant-design/icons": "^5.3.0",
+    "@chakra-ui/react": "^2.8.2",
+    "antd": "^5.14.2",
     "connect-pg-simple": "^9.0.1",
     "dotenv": "^16.4.1",
+    "joi": "^17.12.2",
     "knex": "^3.1.0",
     "next": "14.1.0",
     "next-app-session": "^1.0.7",
