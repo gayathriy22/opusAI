@@ -1,4 +1,4 @@
-import { getSession } from '@/lib/session';
+import { checkUser, getSession } from '@/lib/session';
 import { getUser } from '@/queries/user';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -29,8 +29,10 @@ async function getPlannerTasks (token: string) {
   return canvasTasks
 }
 
-export async function GET(req: NextRequest) {
-  const user = await getSession().all().then(s => getUser(s.user));
+export async function GET() {
+  const { user, errRes } = await checkUser();
+  if (errRes) return errRes;
+
   const token = user.canvas_token;
   if (!token) return NextResponse.json({ error: 'No `canvas_token` for this user' }, { status: 400 });
 

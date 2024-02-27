@@ -1,18 +1,22 @@
-import { getSession } from '@/lib/session';
+import { checkUser, getSession } from '@/lib/session';
 import { addTasks, getTasks } from '@/queries/task';
 import { getUser } from '@/queries/user';
 import { NextRequest, NextResponse } from 'next/server';
 import Joi from 'joi';
 
 export async function GET() {
-  const user = await getSession().all().then(s => getUser(s.user));
+  const { user, errRes } = await checkUser();
+  if (errRes) return errRes;
+
   const { result: tasks, error } = await getTasks(user.uid);
   if (error) return NextResponse.json({ error: 'Internal server error'}, { status: 500 })
   return NextResponse.json(tasks);
 }
 
 export async function POST(req: NextRequest) {
-  const user = await getSession().all().then(s => getUser(s.user));
+  const { user, errRes } = await checkUser();
+  if (errRes) return errRes;
+
   const body = await req.json();
   const schema = Joi.object({
     name: Joi.string().required(),
