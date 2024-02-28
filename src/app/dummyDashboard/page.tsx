@@ -34,6 +34,7 @@ function Page() {
 
   const renderTaskCard = () => {
     if (activeTab === '1') {
+      const todayTasks = tasks.filter(task => task.priority === 1);
       return (
         <div>
           <Card style={{ boxShadow: '0px 0px 12px rgba(0, 0, 0, 0.25)', borderWidth: '3px', borderColor: '#0788FF', borderRadius: '20px', width: '296px', height: '432px', display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '12px',}}>
@@ -49,9 +50,10 @@ function Page() {
         </div>
       );
     } else if (activeTab === '2') {
+      const laterTasks = tasks.filter(task => task.priority === 2);
       return (
         <Box bg="#262626" p="32px" borderRadius="14px" width="296px" height='521px' display='flex' flexDir='column' alignItems='center'> {/* Larger gray container */}
-          {tasks.map((task, index) => (
+          {laterTasks.map((task, index) => (
             <Card key={index} style={{ backgroundColor: 'rgba(255, 255, 255, 0.60)', borderColor: '#262626', borderRadius: '20px', width: '256px', height: 'auto', display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px'}}>
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <Button type="primary" style={{ width: '28px', height: '28px', borderRadius: '6px', fontSize: '20px', marginRight: '8px', background: '#B1DFFF', display: 'flex', justifyContent: 'center', alignItems: 'center' }} icon={<CheckOutlined style={{color: '#262626'}}/>}></Button>
