@@ -13,6 +13,7 @@ function Page() {
   const [taskJSON, setTaskJSON] = useState('<no response yet>');
   const [activeTab, setActiveTab] = useState<string>('1');
   const [tasks, setTasks] = useState<any[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     fetch(`/api/me`).then(x => x.json()).then(setUser)
@@ -35,24 +36,63 @@ function Page() {
   const renderTaskCard = () => {
     if (activeTab === '1') {
       const todayTasks = tasks.filter(task => task.priority === 1);
-      return (
-        <div>
-          <Card style={{ boxShadow: '0px 0px 12px rgba(0, 0, 0, 0.25)', borderWidth: '3px', borderColor: '#0788FF', borderRadius: '20px', width: '296px', height: '432px', display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '12px',}}>
-            <Text style={{fontSize: '48px', fontWeight: 'bolder'}}>+</Text>
-            <Text>Create a task</Text>
-          </Card>
-          <div style = {{alignItems: 'center', marginBottom: '4px'}}>
-              <Pagination simple defaultCurrent={2} total={50} />
-          </div>
-          <div style = {{alignItems: 'center'}}>
+
+      // pagination stuff
+      const pageSize = 1;
+      const startIndex = (currentPage - 1) * pageSize;
+      const endIndex = Math.min(startIndex + pageSize, todayTasks.length);
+      const tasksForPage = todayTasks.slice(startIndex, endIndex);
+  
+      const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+      };
+      
+      // actual content now
+      if (todayTasks.length > 0) {
+        return (
+          <div>
+            <Box style={{ boxShadow: '0px 0px 12px rgba(0, 0, 0, 0.25)', backgroundColor: '#434343', padding: '32px', border: '3px solid #0788FF', borderRadius: '20px', width: '296px', height: '432px', display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '12px'}}>
+              {tasksForPage.map((task, index) => (
+                <Card key={index} style={{ backgroundColor: '#434343', borderColor: '#434343', borderRadius: '20px', width: '256px', height: 'auto', display: 'inline-block', flexDirection: 'column', alignItems: 'center', marginBottom: '12px', marginRight: '12px',}}>
+                  <Text style={{ fontFamily: 'Poppins', fontSize: '32px', whiteSpace: 'nowrap', margin: '35px 0', color: '#FFF', textAlign: 'center' }}>{task.name}</Text>
+                  <Button type="primary" style={{ width: '224px', height: '40px', padding: '10px 76px', color: '#000', borderRadius: '14px', fontSize: '20px', background: '#B1DFFF', display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '200px', marginBottom: '12px'}}>Complete</Button>
+                </Card>
+              ))}
+            </Box>
+            <div style={{ alignItems: 'center', marginBottom: '4px' }}>
+              <Pagination
+                simple
+                defaultCurrent={currentPage}
+                total={todayTasks.length}
+                pageSize={pageSize}
+                onChange={handlePageChange}
+              />
+            </div>
+            <div style={{ alignItems: 'center' }}>
               <Progress percent={50} size={[300, 20]} />
+            </div>
           </div>
-        </div>
-      );
+        );
+      } else {
+        return (
+          <div>
+            <Card style={{ boxShadow: '0px 0px 12px rgba(0, 0, 0, 0.25)', borderWidth: '3px', borderColor: '#0788FF', borderRadius: '20px', width: '296px', height: '432px', display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '12px',}}>
+              <Text style={{fontSize: '48px', fontWeight: 'bolder'}}>+</Text>
+              <Text>Create a task</Text>
+            </Card>
+            <div style = {{alignItems: 'center', marginBottom: '4px'}}>
+              <Pagination simple defaultCurrent={2} total={50} />
+            </div>
+            <div style = {{alignItems: 'center'}}>
+              <Progress percent={50} size={[300, 20]} />
+            </div>
+          </div>
+        );
+      }
     } else if (activeTab === '2') {
       const laterTasks = tasks.filter(task => task.priority === 2);
       return (
-        <Box bg="#262626" p="32px" borderRadius="14px" width="296px" height='521px' display='flex' flexDir='column' alignItems='center'> {/* Larger gray container */}
+        <Box bg="#262626" p="32px" borderRadius="14px" width="296px" height='521px' display='flex' flexDir='column' alignItems='center' overflowY='auto' whiteSpace='nowrap'>
           {laterTasks.map((task, index) => (
             <Card key={index} style={{ backgroundColor: 'rgba(255, 255, 255, 0.60)', borderColor: '#262626', borderRadius: '20px', width: '256px', height: 'auto', display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px'}}>
               <div style={{ display: 'flex', alignItems: 'center' }}>
