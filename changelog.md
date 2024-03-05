@@ -6,3 +6,10 @@
 # February 27, 2024
 
 - Rendered task cards based on active tab (today or later)
+
+# March 5, 2024
+
+- Retrieving Canvas Assignments also has the option to import tasks now
+- Tasks imported from Canvas will have a link to the assignment
+- Tasks now have an implicit due date (used to categorize into today and later) instead of priority
+

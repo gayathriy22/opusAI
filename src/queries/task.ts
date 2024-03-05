@@ -3,7 +3,9 @@ import { parametrize2D, pool } from '../lib/database';
 export interface Task {
   name: string;
   description?: string | null;
-  priority: number;
+  date?: Date | null;
+  url?: string | null;
+  external_id?: string | null;
 }
 
 interface UserTask extends Task {
@@ -13,7 +15,7 @@ interface UserTask extends Task {
 
 type GetTasksResult = { result: UserTask[], error?: undefined } | { result?: undefined, error: string };
 export async function getTasks (uid: string): Promise<GetTasksResult> {
-  const query = `SELECT task_id, user_id, name, description, priority FROM task
+  const query = `SELECT task_id, user_id, name, description, date, url FROM task
     WHERE user_id = $1`;
   try {
     const result = await pool.query(query, [uid]);
@@ -24,10 +26,14 @@ export async function getTasks (uid: string): Promise<GetTasksResult> {
   }
 }
 
-export async function addTasks (uid: string, tasks: Task[]): Promise<number | { error: string }> {
-  const params = tasks.flatMap(t => { t.description ??= null; return [uid, t.name, t.description, t.priority]; });
-  const query = `INSERT INTO task (user_id, name, description, priority)
-    VALUES ${parametrize2D(4, tasks.length)}`;
+export async function addTasks (uid: string, tasks: Task[], ignoreDuplicates?: boolean): Promise<number | { error: string }> {
+  const params = tasks.flatMap(t => {
+    const date = t.date ? new Date(t.date) : null;
+    return [uid, t.name, t.description ?? null, date, t.url ?? null, t.external_id];
+  });
+  const query = `INSERT INTO task (user_id, name, description, date, url, external_id)
+    VALUES ${parametrize2D(6, tasks.length)}
+    ${ignoreDuplicates ? 'ON CONFLICT DO NOTHING' : ''}`;
   try {
     const result = await pool.query(query, params);
     return result.rowCount ?? 0;

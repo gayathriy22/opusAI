@@ -1,6 +1,7 @@
 import { checkUser, getSession } from '@/lib/session';
-import { getUser } from '@/queries/user';
+import { Task, addTasks } from '@/queries/task';
 import { NextRequest, NextResponse } from 'next/server';
+import moment from 'moment';
 
 interface CanvasTask {
   id: number;
@@ -26,16 +27,28 @@ async function getPlannerTasks (token: string) {
     return new Date(a.due_at).getTime() - new Date(b.due_at).getTime() || b.points_possible - a.points_possible
   });
 
+  canvasTasks.forEach(t => { t.title = t.title.trim() });
   return canvasTasks
 }
 
-export async function GET() {
+async function importTasks (user: any, tasks: CanvasTask[]) {
+  const dbTasks: Task[] = tasks.map(t => {
+    const date = moment(t.due_at).subtract(1, 'day').toDate(); // do this task 1 day before it's due
+    return { name: t.title, description: 'Imported from Canvas', date, url: t.url, external_id: t.id.toString() }
+  })
+  addTasks(user.uid, dbTasks, true);
+}
+
+export async function GET(req: NextRequest) {
   const { user, errRes } = await checkUser();
   if (errRes) return errRes;
+
 
   const token = user.canvas_token;
   if (!token) return NextResponse.json({ error: 'No `canvas_token` for this user' }, { status: 400 });
 
   const tasks = await getPlannerTasks(token);
+
+  if (['true', '1'].includes(req.nextUrl.searchParams.get('import') ?? '')) await importTasks(user, tasks);
   return NextResponse.json(tasks);
 }

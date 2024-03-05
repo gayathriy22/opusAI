@@ -21,7 +21,8 @@ export async function POST(req: NextRequest) {
   const schema = Joi.object({
     name: Joi.string().required(),
     description: Joi.string(),
-    priority: Joi.number().required(),
+    date: Joi.string().isoDate(),
+    url: Joi.string().uri()
   });
 
   // Check the task to make sure it has a name and priority (description is optional)

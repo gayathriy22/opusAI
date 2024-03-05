@@ -7,7 +7,8 @@ async function handleSubmit (event: FormEvent) {
   const elements = (event.target as HTMLFormElement).elements as any;
   const body = JSON.stringify({
     name: elements.name.value,
-    priority: Number(elements.priority.value)
+    date: elements.priority.value === '1' ? new Date().toISOString() : null,
+    url: elements.url.value
   });
   const response = await fetch('/api/tasks', { method: 'POST', body }).then(x => x.json());
   console.log(response);
@@ -34,6 +35,11 @@ function Page() {
         <label>
           <span>Give your task a name</span><br />
           <input type="text" placeholder='Task name' name='name' />
+        </label>
+        <br />
+        <label>
+          <span>Task URL (optional)</span><br />
+          <input type="url" placeholder='canvas url' name='url' />
         </label>
         <br /><br />
         <label>
