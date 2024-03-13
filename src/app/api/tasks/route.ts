@@ -25,8 +25,7 @@ export async function POST(req: NextRequest) {
     url: Joi.string().uri()
   });
 
-  // Check the task to make sure it has a name and priority (description is optional)
-  // You can use `1` for `today` and `2` for `later`
+  // Check the task to make sure it has a name
   const { error } = schema.validate(body);
   if (error) return NextResponse.json({ error: error.details[0].message }, { status: 400 });
 
