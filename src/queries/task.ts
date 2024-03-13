@@ -6,6 +6,7 @@ export interface Task {
   date?: Date | null;
   url?: string | null;
   external_id?: string | null;
+  complete?: boolean | null;
 }
 
 interface UserTask extends Task {
@@ -36,6 +37,22 @@ export async function addTasks (uid: string, tasks: Task[], ignoreDuplicates?: b
     ${ignoreDuplicates ? 'ON CONFLICT DO NOTHING' : ''}`;
   try {
     const result = await pool.query(query, params);
+    return result.rowCount ?? 0;
+  } catch (err: any) {
+    console.error(err);
+    return { error: err.message };
+  }
+}
+
+export async function updateTask (task: UserTask, uid: string): Promise<number | { error: string }> {
+  const date = task.date ? new Date(task.date) : null;
+  const { name, description, complete, task_id } = task;
+  const query = `UPDATE task 
+    SET name = $1, description = $2, date = $3, complete = $4
+    WHERE task_id = $5 AND user_id = $6`;
+  console.log([name, description ?? null, date, complete, task_id, uid])
+  try {
+    const result = await pool.query(query, [name, description ?? null, date, complete, task_id, uid]);
     return result.rowCount ?? 0;
   } catch (err: any) {
     console.error(err);
