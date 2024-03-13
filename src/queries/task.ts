@@ -50,7 +50,6 @@ export async function updateTask (task: UserTask, uid: string): Promise<number |
   const query = `UPDATE task 
     SET name = $1, description = $2, date = $3, complete = $4
     WHERE task_id = $5 AND user_id = $6`;
-  console.log([name, description ?? null, date, complete, task_id, uid])
   try {
     const result = await pool.query(query, [name, description ?? null, date, complete, task_id, uid]);
     return result.rowCount ?? 0;

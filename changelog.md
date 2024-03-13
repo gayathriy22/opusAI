@@ -13,3 +13,6 @@
 - Tasks imported from Canvas will have a link to the assignment
 - Tasks now have an implicit due date (used to categorize into today and later) instead of priority
 
+# March 13, 2024
+
+- Added an endpoint to update tasks since this might be useful for things like imported tasks
